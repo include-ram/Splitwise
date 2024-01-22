@@ -8,13 +8,6 @@
 |                  |        |                      |         |                 |                                                                                                                                           
 +------------------+        +----------------------+         +-----------------+    
 
-
-![Capture](https://github.com/include-ram/Splitwise/assets/59176484/9560e92d-1162-43e4-b821-d5125a541023)
-
-
-
-
-
 User's Browser: This represents the user interface where users interact with the application.
 
 Flask Web App: The core of your application built using Flask. It handles HTTP requests, processes business logic, and communicates with the database.
