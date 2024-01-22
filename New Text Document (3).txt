@@ -1,0 +1,124 @@
+from flask import Flask, request, jsonify
+from flask_mail import Mail, Message
+
+app = Flask(__name__)
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = 'your_email@gmail.com'
+app.config['MAIL_PASSWORD'] = 'your_password'
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+
+mail = Mail(app)
+
+users = {}
+expenses = []
+
+class User:
+    def __init__(self, user_id, name, email, mobile):
+        self.user_id = user_id
+        self.name = name
+        self.email = email
+        self.mobile = mobile
+        self.balance = {}
+
+class Expense:
+    def __init__(self, expense_id, paid_by, amount, split_type, participants):
+        self.expense_id = expense_id
+        self.paid_by = paid_by
+        self.amount = amount
+        self.split_type = split_type
+        self.participants = participants
+
+def send_email(subject, body, recipients):
+    with app.app_context():
+        msg = Message(subject, recipients=recipients)
+        msg.body = body
+        mail.send(msg)
+
+def calculate_balances():
+    for user_id, user in users.items():
+        user.balance = {}
+
+    for expense in expenses:
+        if expense.split_type == 'EQUAL':
+            split_amount = round(expense.amount / len(expense.participants), 2)
+            for participant in expense.participants:
+                if participant != expense.paid_by:
+                    users[participant].balance[expense.paid_by] = users[participant].balance.get(expense.paid_by, 0) + split_amount
+                    users[expense.paid_by].balance[participant] = users[expense.paid_by].balance.get(participant, 0) - split_amount
+        elif expense.split_type == 'EXACT':
+            total_share = sum(expense.participants.values())
+            if total_share != expense.amount:
+                return 'Total share is not equal to the amount'
+            for participant, share in expense.participants.items():
+                if participant != expense.paid_by:
+                    users[participant].balance[expense.paid_by] = users[participant].balance.get(expense.paid_by, 0) + share
+                    users[expense.paid_by].balance[participant] = users[expense.paid_by].balance.get(participant, 0) - share
+        elif expense.split_type == 'PERCENT':
+            total_percent = sum(expense.participants.values())
+            if total_percent != 100:
+                return 'Total percentage is not equal to 100'
+            for participant, percent in expense.participants.items():
+                if participant != expense.paid_by:
+                    split_amount = round(expense.amount * percent / 100, 2)
+                    users[participant].balance[expense.paid_by] = users[participant].balance.get(expense.paid_by, 0) + split_amount
+                    users[expense.paid_by].balance[participant] = users[expense.paid_by].balance.get(participant, 0) - split_amount
+
+def simplify_expenses(user_id):
+    simplified_balances = {}
+    for user, balance in users[user_id].balance.items():
+        if balance != 0:
+            simplified_balances[user] = balance
+    users[user_id].balance = simplified_balances
+
+@app.route('/add_user', methods=['POST'])
+def add_user():
+    user_id = request.json['user_id']
+    name = request.json['name']
+    email = request.json['email']
+    mobile = request.json['mobile']
+    user = User(user_id, name, email, mobile)
+    users[user_id] = user
+    return 'User added successfully'
+
+@app.route('/add_expense', methods=['POST'])
+def add_expense():
+    expense_id = len(expenses) + 1
+    paid_by = request.json['paid_by']
+    amount = request.json['amount']
+    split_type = request.json['split_type']
+    participants = request.json['participants']
+
+    expense = Expense(expense_id, paid_by, amount, split_type, participants)
+    expenses.append(expense)
+
+    calculate_balances()
+
+    for participant in participants:
+        if participant != paid_by:
+            subject = 'Expense Added'
+            body = f'You have been added to an expense. You owe {users[participant].balance[paid_by]} to {users[paid_by].name}.'
+            recipients = [users[participant].email]
+            send_email(subject, body, recipients)
+
+    return 'Expense added successfully'
+
+@app.route('/get_balances', methods=['GET'])
+def get_balances():
+    user_id = request.args.get('user_id')
+    balances = users[user_id].balance
+    return balances
+
+@app.route('/simplify_expenses', methods=['POST'])
+def simplify_expenses_route():
+    user_id = request.json['user_id']
+    simplify = request.json['simplify']
+
+    if simplify:
+        simplify_expenses(user_id)
+
+    return 'Expenses simplified successfully'
+
+if __name__ == '__main__':
+    app.run()
