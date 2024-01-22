@@ -1,12 +1,3 @@
-+------------------+        +----------------------+         +-----------------+                                                                                                                                              
-|                  |        |                      |         |                 |                                                                                                                                              
-|   User's         |        |    Flask Web App     |         |    SQLite DB    |                                                                                                                                              
-|   Browser        |  --->  |                      |  <---   |                 |                                                                                                                                        
-|                  |        |   - Routes           |         |   - Users        |                                                                                                                                          
-|                  |        |   - Models           |         |   - Expenses     |                                                                                                                                     
-|                  |        |   - Utils            |         |   - Balances     |                                                                                                                                         
-|                  |        |                      |         |                 |                                                                                                                                           
-+------------------+        +----------------------+         +-----------------+    
 ![Capture](https://github.com/include-ram/Splitwise/assets/59176484/83f6a81a-2fe7-47ed-8fb3-c0ac56ff54bf)
 
 User's Browser: This represents the user interface where users interact with the application.
