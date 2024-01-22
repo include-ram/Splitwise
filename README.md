@@ -1,12 +1,12 @@
-+------------------+        +----------------------+         +-----------------+
-|                  |        |                      |         |                 |
-|   User's         |        |    Flask Web App     |         |    SQLite DB    |
-|   Browser        |  --->  |                      |  <---   |                 |
-|                  |        |   - Routes           |         |   - Users        |
-|                  |        |   - Models           |         |   - Expenses     |
-|                  |        |   - Utils            |         |   - Balances     |
-|                  |        |                      |         |                 |
-+------------------+        +----------------------+         +-----------------+
++------------------+        +----------------------+         +-----------------+                                                                                                                                              
+|                  |        |                      |         |                 |                                                                                                                                              
+|   User's         |        |    Flask Web App     |         |    SQLite DB    |                                                                                                                                              
+|   Browser        |  --->  |                      |  <---   |                 |                                                                                                                                        
+|                  |        |   - Routes           |         |   - Users        |                                                                                                                                          
+|                  |        |   - Models           |         |   - Expenses     |                                                                                                                                     
+|                  |        |   - Utils            |         |   - Balances     |                                                                                                                                         
+|                  |        |                      |         |                 |                                                                                                                                           
++------------------+        +----------------------+         +-----------------+                                                                                                                                          
 
 
 User's Browser: This represents the user interface where users interact with the application.
